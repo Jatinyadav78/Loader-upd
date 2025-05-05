@@ -1,0 +1,27 @@
+/* .layoutContainer{
+  height: 100vh;
+}
+
+.navbar{
+  height: 10%;
+}
+
+.main{
+  height: 85%;
+}
+
+.footer{
+  height: 5%;
+} */
+
+
+/* @media (max-width: 780px) {
+    .navbar {
+      display: none;
+    }
+} */
+
+.navbar{
+width: 100%;
+min-width: 390px;
+}
