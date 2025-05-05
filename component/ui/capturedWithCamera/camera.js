@@ -9,7 +9,7 @@ import { api } from "../../../utils";
 import { Button } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useRouter } from 'next/navigation';
-import Loader from '../loader/loader';
+//import Loader from '../loader/loader';
 
 const CameraCaptureWithTimestamp = ({ permitNumber }) => {
   const router = useRouter();
