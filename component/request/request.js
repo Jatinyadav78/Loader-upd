@@ -1,17 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Styles from './request.module.css';
 import CustomButton from '../ui/statusButton/button.js';
 import { formatDate } from '../../helperFunction/dateTimeFormat.js';
 import { Button } from '@mui/material';
 import CameraAltTwoToneIcon from '@mui/icons-material/CameraAltTwoTone';
 import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const Request = ({ data, handleOnClick, handleAddImage }) => {
+  // Add loading state for request click
+  const [isLoading, setIsLoading] = useState(false);
   const date = formatDate(data?.createdAt, true)
+
+  // Handle request click with loading state
+  const handleRequestClick = async () => {
+    setIsLoading(true);
+    await handleOnClick(data?.permitNumber, data?.status);
+  };
 
   return (
     <div>
-      <div className={Styles.requestContainer} onClick={() => { handleOnClick(data?.permitNumber, data?.status) }}>
+      <div className={Styles.requestContainer} onClick={handleRequestClick}>
         <div className={Styles.details}>
           <div className={Styles.name}>
             <div className={Styles.permitInfo}>
@@ -37,15 +46,18 @@ const Request = ({ data, handleOnClick, handleAddImage }) => {
           </div>
         }
         <div className={Styles.pendingContainer}>
-          <CustomButton status={data?.status} />
+          {isLoading ? (
+            <CircularProgress size={24} style={{ color: '#0073FF' }} />
+          ) : (
+            <CustomButton status={data?.status} />
+          )}
         </div>
       </div>
       <div style={{ width: '100%' }}>
         {data?.state === 'approved' && 
           <Button
-            className={Styles.requestContainer}
-            style={{ marginBottom: '10px', minWidth: '20px', minHeight: '10px' }}
-            variant='outlined'
+            className={`${Styles.requestContainer} ${Styles.imageButton}`}
+            variant='contained'
             endIcon={<CameraAltTwoToneIcon />}
             onClick={() => handleAddImage(data?.permitNumber)}
           >
