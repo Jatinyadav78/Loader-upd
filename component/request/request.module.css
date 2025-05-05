@@ -93,26 +93,6 @@
     margin-left: auto;
 }
 
-/* New styles for the image button */
-.imageButton {
-    background: linear-gradient(135deg, #0073FF 0%, #00C6FB 100%) !important;
-    color: white !important;
-    font-weight: 500 !important;
-    text-transform: none !important;
-    padding: 10px 20px !important;
-    margin-bottom: 10px !important;
-    min-width: 20px !important;
-    min-height: 10px !important;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1) !important;
-    transition: all 0.3s ease !important;
-}
-
-.imageButton:hover {
-    background: linear-gradient(135deg, #0066E5 0%, #00B3E6 100%) !important;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2) !important;
-    transform: translateY(-1px) !important;
-}
-
 @keyframes blink {
     0% { opacity: 1; }
     50% { opacity: 0.5; }
@@ -139,3 +119,5 @@
         gap: 4px;
     }
 }
+
+

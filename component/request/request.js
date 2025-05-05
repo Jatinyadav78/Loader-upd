@@ -70,3 +70,4 @@ const Request = ({ data, handleOnClick, handleAddImage }) => {
 }
 
 export default Request
+
