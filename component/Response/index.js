@@ -1,583 +1,450 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import Styles from './index.module.css';
-import Response from './response.js'
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as Yup from "yup";
-import axios from 'axios';
-import { toast } from "react-toastify";
-import ResponseSkeleton from './responseSkeleton.js'
-import { Button, Box, FormHelperText, InputLabel, TextField } from '@mui/material';
-import Modal from '../ui/modal/modal.js'
-import { DatePicker } from 'rsuite';
-import { isBefore, subDays } from 'date-fns';
+'use client'
+import React, { useEffect, useState } from 'react';
+import Styles from './index.module.css'
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
+import RequestDesign from '../../public/requestPage.svg';
+import Image from 'next/image';
+import KeyboardArrowRightOutlinedIcon from '@mui/icons-material/KeyboardArrowRightOutlined';
+import Request from './request.js';
+import { useRouter } from 'next/navigation';
+import axios, { AxiosError } from 'axios';
+import Response from '../Response/index.js'
+import Paginator from '../ui/paginator/paginator.js';
+import Button from '@mui/material/Button';
+import Modal from '../ui/modal/filterModal.js'
+import { getLocalStorage } from '../../helperFunction/localStorage';
+import RequestSkeleton from './requestSkeleton.js'
+import { Suspense } from 'react'
+import NotFound from '../error/notFound.js';
 import { formatDate } from '../../helperFunction/dateTimeFormat';
-import { Popover, Whisper } from 'rsuite';
-import NotFound from '../error/notFound';
-import CameraAltTwoToneIcon from '@mui/icons-material/CameraAltTwoTone';
-import QRCodeGenerator from '../QRCode/QRCodeGenerator';
-import DownloadForOfflineRoundedIcon from '@mui/icons-material/DownloadForOfflineRounded';
-import html2pdf from "html2pdf.js";
-
-// const responseData = [
-//     {
-//       "_id": "66139ac92050777d7050a643",
-//       "sectionName": "Personal Dets",
-//       "responses": [
-//         {
-//           "_id": "66139ac92050777d7050a644",
-//           "responseType": "text",
-//           "question": "Name",
-//           "answer": "John Doe"
-//         },
-//         {
-//           "_id": "66139ac92050777d7050a645",
-//           "responseType": "number",
-//           "question": "Age",
-//           "answer": 30
-//         },
-//         {
-//           "_id": "66139ac92050777d7050a646",
-//           "responseType": "date",
-//           "question": "Date of Birth",
-//           "answer": "1990-01-01"
-//         },
-//         {
-//           "_id": "66139ac92050777d7050a647",
-//           "responseType": "date-range",
-//           "question": "Date Range",
-//           "answer": {
-//             "from": "2024-03-25T18:30:00.000Z",
-//             "to": "2024-03-28T18:30:00.000Z"
-//           }
-//         }
-//       ]
-//     },
-//     {
-//       "_id": "66139ac92050777d7050a648",
-//       "sectionName": "Address",
-//       "responses": [
-//         {
-//           "_id": "66139ac92050777d7050a649",
-//           "responseType": "text",
-//           "question": "H.No",
-//           "answer": "123"
-//         },
-//         {
-//           "_id": "66139ac92050777d7050a64a",
-//           "responseType": "text",
-//           "question": "Landmark",
-//           "answer": "Near Park"
-//         }
-//       ]
-//     },
-//     {
-//       "_id": "66139ac92050777d7050a64b",
-//       "sectionName": "Preferences",
-//       "responses": [
-//         {
-//           "_id": "66139ac92050777d7050a64c",
-//           "responseType": "multiselect",
-//           "question": "Favorite Colors",
-//           "answer": [
-//             "Red",
-//             "Blue"
-//           ]
-//         },
-//         {
-//           "_id": "66139ac92050777d7050a64d",
-//           "responseType": "object",
-//           "question": "Contact Information",
-//           "answer": {
-//             "Email": "john@example.com",
-//             "Phone": "123-456-7890"
-//           }
-//         }
-//       ]
-//     }
-//   ]
-
-// const approver = [
+// const requestData = [
 //   {
-//     "_id": "660ef6a7b8af5c9b605d6cbd",
-//     "userId": "660a89617428185d28282bef",
-//     "designation": "Executive",
-//     "level": "1",
+//     "permitNumber": 6663558215866,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-09T12:39:15.821Z",
+//     "updatedAt": "2024-04-09T12:39:15.821Z",
 //     "status": "approved",
-//     "remark": null
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
 //   },
 //   {
-//     "_id": "66139574000cc03f849f4f32",
-//     "userId": "660d4875f395024392f88153",
-//     "designation": "jr.executive",
-//     "level": "2",
+//     "permitNumber": 6436682993124,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-09T06:21:08.298Z",
+//     "updatedAt": "2024-04-09T06:21:08.298Z",
 //     "status": "pending",
-//     "remark": null
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
+//   },
+//   {
+//     "permitNumber": 6433033471317,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-09T06:15:03.347Z",
+//     "updatedAt": "2024-04-09T06:15:03.347Z",
+//     "status": "pending",
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
+//   },
+//   {
+//     "permitNumber": 6431461327145,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-09T06:12:26.132Z",
+//     "updatedAt": "2024-04-09T06:12:26.132Z",
+//     "status": "pending",
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
+//   },
+//   {
+//     "permitNumber": 6428140236104,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-09T06:06:54.022Z",
+//     "updatedAt": "2024-04-09T06:06:54.022Z",
+//     "status": "pending",
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
+//   },
+//   {
+//     "permitNumber": 6422491495983,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-09T05:57:29.148Z",
+//     "updatedAt": "2024-04-09T05:57:29.148Z",
+//     "status": "pending",
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
+//   },
+//   {
+//     "permitNumber": 6419061838623,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-09T05:51:46.183Z",
+//     "updatedAt": "2024-04-09T05:51:46.183Z",
+//     "status": "pending",
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
+//   },
+//   {
+//     "permitNumber": 5770258298300,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-08T11:50:25.829Z",
+//     "updatedAt": "2024-04-08T11:50:25.829Z",
+//     "status": "pending",
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
+//   },
+//   {
+//     "permitNumber": 5766170577699,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-08T11:43:37.057Z",
+//     "updatedAt": "2024-04-08T11:43:37.057Z",
+//     "status": "pending",
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
+//   },
+//   {
+//     "permitNumber": 5762125886313,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-08T11:36:52.588Z",
+//     "updatedAt": "2024-04-08T11:36:52.588Z",
+//     "status": "pending",
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
+//   },
+//   {
+//     "permitNumber": 5641604117667,
+//     "vendorDetail": {
+//       "_id": "6613a7c0040da652d00e16ad",
+//       "name": "Naman",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308605"
+//     },
+//     "createdAt": "2024-04-08T08:16:00.411Z",
+//     "updatedAt": "2024-04-08T08:16:00.411Z",
+//     "status": "pending",
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
+//   },
+//   {
+//     "permitNumber": 5640895248036,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-08T08:14:49.524Z",
+//     "updatedAt": "2024-04-08T08:14:49.524Z",
+//     "status": "pending",
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
+//   },
+//   {
+//     "permitNumber": 5608419365035,
+//     "vendorDetail": {
+//       "_id": "660f81f7387af92bc4fb347a",
+//       "name": "Naman Agawal",
+//       "email": "naman.agarwal@jbmgroup.com",
+//       "phone": "9829308602"
+//     },
+//     "createdAt": "2024-04-08T07:20:41.936Z",
+//     "updatedAt": "2024-04-08T07:20:41.936Z",
+//     "status": "pending",
+//     "formDetail": {
+//       "formId": "660515ba0b107057f8c36c3a",
+//       "formName": "Fire Work Permit ",
+//       "formDescription": "Permit Requied for fire works"
+//     }
 //   }
 // ]
 
+const Index = ({ status, pn }) => {
+  const router = useRouter();
+  const user = getLocalStorage('user')
+  const Id = user?._id;
+  const orgId = user?.organizationId;
+  const [breadCrumbsStatus, setBreadCrumbsStatus] = useState(status)
+  const [data, setData] = useState([])
+  const [filteredData, setFilteredData] = useState([])
+  const [permitNumber, setPermitNumber] = useState(pn)
+  const [page, setPage] = useState(1)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [loading, setLoading] = useState(true)
 
-const Index = ({ permitNumber, Id, changeFormStatus, handleCancelBtn, status, changeBreadCrumbsStatus, handleAddImage }) => {
-    const [formResData, setFormResData] = useState([])
-    const [statusMsg, setStatusMsg] = useState()
-    const [formState, setFormState] = useState()
-    const [loading, setLoading] = useState(true)
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [dateRange, setDateRange] = useState(null);
-    const [workDuration, setWorkDuration] = useState();
-    const [timeExtension, setTimeExtension] = useState(null);
-    const [isBlinking, setIsBlinking] = useState(true);
-    const [loadingButton, setLoadingButton] = useState(false);
-    const [isAccordianExt, setIsAccordianExt] = useState(false);
-    const validateDate = (selectedDate, workDuration) => {
-        if (!workDuration?.to) {
-            return true; // Allow selection if workDuration is not yet available
-        }
-        // const minDate = subDays(new Date(workDuration?.to), 0);
-        return (selectedDate > new Date(workDuration?.to));
-    };
-    const remarkValidationSchema = Yup.object().shape({
-        remark: Yup.string().required("Remark is required for rejection"),
+  const fetchRequest = async () => {
+    try {
+      // throw new Error('hi')
+      const response = await axios.get(`v1/work-permit/response?orgId=${orgId}&userId=${Id}&status=${status}&departmentId=${user?.departmentId}`);
+      setData(response?.data)
+      setFilteredData(response?.data)
+      setLoading(false)
+    } catch (error) {
+      // setData(requestData)
+      // setFilteredData(requestData)
+      console.error("error in fetching requests data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchAllRequest = async () => {
+    try {
+      // throw new Error('hi')
+      const response = await axios.get(`v1/work-permit/response?orgId=${orgId}&userId=${Id}&departmentId=${user?.departmentId}`);
+      setData(response?.data)
+      setFilteredData(response?.data)
+    } catch (error) {
+      // setData(requestData)
+      // setFilteredData(requestData)
+      console.error("error in fetching requests data:", error)
+    } finally {
+      setLoading(false)
+
+    }
+  }
+
+  const handleResponseClick = (permitNumber, formStatus) => {
+    setPermitNumber(permitNumber)
+    // setStatusMsg(formStatus)
+  }
+  //change breadCrumbsStatus according to response status of the form.
+  const changeBreadCrumbsStatus = (rspStatus) => {
+    setBreadCrumbsStatus(rspStatus)
+  }
+
+  const handleChangePage = (event) => {
+    setPage(event)
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(event)
+    setPage(1)
+  };
+
+  const handleAddImage = (permitNumber) => {
+    router.push(`/image/${permitNumber}`)
+  }
+
+  const handleCancelBtn = async () => {
+    if (pn) {
+      router.push('/dashboard')
+    } else {
+      setPermitNumber(null);
+    }
+  }
+
+  const changeFormStatus = () => {
+    if (pn) {
+      router.push('/dashboard')
+    }
+    // toast.success(response.data.message)
+    if (status === 'request') {
+      // setLoading(true)
+      fetchAllRequest();
+      setPermitNumber(null);
+      return
+    }
+    setFilteredData(prev => prev?.filter((data) => permitNumber !== data?.permitNumber))
+    setPermitNumber(null);
+  };
+
+  const handleSearch = (event) => {
+    const search = event.target.value
+    setSearchTerm(search)
+    const searchItem = data?.filter((item) => {
+      return item?.permitNumber.toString().includes(search) || item?.vendorDetail?.name.toLowerCase().replace(/\s/g, '').includes(search.toLowerCase().replace(/\s/g, '')) || item?.formDetail?.formName.toLowerCase().replace(/\s/g, '').includes(search.toLowerCase().replace(/\s/g, ''))
+    })
+    setFilteredData(searchItem)
+  }
+
+  const handleRemoveFilter = () => {
+    setFilteredData(data);
+  }
+
+  const handleFilter = async (filterData) => {
+    setLoading(true);
+    const formattedDates = filterData?.dateFilter?.map(dateString => {
+      const date = new Date(dateString);
+      const formattedDate = formatDate(date);
+      return `${formattedDate.year}-${formattedDate.month}-${formattedDate.day}`;
     });
-    const date = new Date(workDuration?.to)
-    const timeExtValidationSchema = Yup.object().shape({
-        selectDateTime: Yup.string()
-            .typeError('Duration must be a valid date')
-            .test('isAfterWorkDuration', 'You should select a date after work duration', value => {
-                // Call the custom validation function
-                return validateDate(new Date(value), workDuration);
-            }).required("Please select date and time range"),
-        reason: Yup.string().required('reason is required'),
-    });
-    // console.log("date:",new Date(workDuration.to))
-    const remarkFormOptions = { resolver: yupResolver(remarkValidationSchema) };
-    const timeExtFormOptions = { resolver: yupResolver(timeExtValidationSchema) };
 
-    const { register: registerRemark, handleSubmit: handleSubmitRemark, formState: formStateRemark, trigger: triggerRemark } = useForm(remarkFormOptions);
-    const { errors: errorsRemark } = formStateRemark;
+    try {
 
-    const { register: registerTimeExt, setError, setValue: setTimeExtValue, handleSubmit: handleSubmitTimeExt, formState: formStateTimeExt, trigger: triggerTimeExt, reset: resetTimeExt } = useForm(timeExtFormOptions);
-    const { errors: errorsTimeExt } = formStateTimeExt;
+      if (status === 'request') {
+        const response = await axios.get(`v1/work-permit/response?orgId=${orgId}&userId=${Id}&startDate=${formattedDates[0]}&endDate=${formattedDates[1]}&departmentId=${user?.departmentId}`)
+        setFilteredData(response?.data)
+        return
+      }
+      const response = await axios.get(`v1/work-permit/response?orgId=${orgId}&userId=${Id}&startDate=${formattedDates[0]}&endDate=${formattedDates[1]}T23:59:59.999Z&status=${status}&departmentId=${user?.departmentId}`)
+      setFilteredData(response?.data)
+    } catch (error) {
+      console.error("error in fetching filtered data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
-    const onSubmit = (data) => {
-        updateStatus('rejected', data?.remark)
+  useEffect(() => {
+    if (status === 'request') {
+      fetchAllRequest();
+      return
+    }
+    if (!permitNumber) {
+      fetchRequest();
     }
 
-    const handleModalClose = () => {
-        setIsModalOpen(false)
-        setDateRange(null);
-        resetTimeExt();
-    }
+  }, [])
 
-    const onSubmitTimeExt = async (data) => {
-        const isValid = await triggerTimeExt("selectDateTime");
-        if (!isValid) return;
-        console.log("workduration::", workDuration)
-        if (!workDuration?.to) {
-            toast.error("No WorkDuration Found")
-            return;
-        }
-        const reqBody = {
-            //const { permitNumber, requested_by, requested_from, requested_to, reason } = req.body;
-            permitNumber: permitNumber,
-            requested_by: status ? Id : "vendor",
-            requested_from: new Date(workDuration?.to)?.toISOString(),
-            requested_to: new Date(data?.selectDateTime)?.toISOString(),
-            reason: data?.reason
-        };
-        try {
-            const response = await axios.post(`v1/work-permit/request-extension`, reqBody);
-            setTimeExtension(response?.data?.data?.extension)
-            toast.success(`request sent`)
-        } catch (error) {
-            console.log("error::", error)
-            if (error?.status === 400) {
-                toast.error(error?.response?.data?.message)
-            }
-            console.error("error in getting form response:", error);
-        } finally {
-            resetTimeExt();
-        }
-        setDateRange(null)
-        setIsModalOpen(false);
-    };
-
-    const updateExtStatus = async (action) => {
-        try {
-            const reqBody = {
-                permitNumber: permitNumber,
-                approved_by: Id,
-                status: action,
-            }
-            const response = await axios.put(`v1/work-permit/update-extension`, reqBody)
-            if (response?.status === 200) {
-                setTimeExtension(response?.data?.data?.extension)
-                setWorkDuration(response?.data?.data?.workDuration)
-                toast(`successfully ${action}`)
-            }
-        } catch (error) {
-            console.error("error while time extension update Status:", error)
-        }
-    }
-    const updateStatus = async (action, remark) => {
-        if (action === 'rejected') {
-            // Trigger validation for the "remark" field
-            const isValid = await triggerRemark("remark");
-            if (!isValid) {
-                // If validation fails, return without updating status
-                return;
-            }
-        }
-
-        const reqBody = {
-            userId: Id
-        }
-        action === 'rejected' && (reqBody["remark"] = remark);
-        action === 'closed' ? reqBody["state"] = action : reqBody["status"] = action;
-        try {
-            const response = await axios.post(`v1/work-permit/response/${permitNumber}/status`, reqBody);
-            toast(`successfully ${action}`)
-            setFormResData([]);
-            changeFormStatus();
-        } catch (error) {
-            console.error("error in getting form response:", error);
-        }
-    };
-
-    const downloadResponse = async () => {
-        setIsAccordianExt(true);
-        setLoadingButton(true);
-        await new Promise((resolve) => requestAnimationFrame(resolve)); // allow re-render
-        setTimeout(async () => {
-            const element = document.getElementById('responseDownload');
-
-            if (!element) {
-                console.error('Element not found');
-                setLoadingButton(false);
-                return;
-            }
-
-            try {
-                const options = {
-                    margin: 0.5,
-                    filename: `${permitNumber}-response.pdf`,
-                    image: { type: "jpeg", quality: 0.98 },
-                    html2canvas: {
-                        scale: 2,       // Higher scale for better quality
-                        useCORS: true,  // Enable CORS to allow cross-origin image loading
-                        logging: true,  // Enable logging for debugging purposes
-                    },
-                    jsPDF: {
-                        unit: "in",
-                        format: "letter",
-                        orientation: "portrait",
-                    },
-                };
-
-                html2pdf().set(options).from(element).save();
-            } catch (err) {
-                console.error('Error creating PDF:', err);
-                alert('Failed to generate PDF');
-            } finally {
-                setLoadingButton(false);
-            }
-        }, 1000)
-    };
-
-
-    useEffect(() => {
-        const fetchFormResData = async () => {
-            if (!permitNumber) return;
-            try {
-                // throw new Error('hi')
-                const response = await axios.get(`v1/work-permit/response?permitNumber=${permitNumber}`)
-                setFormState(response?.data?.state);
-                setStatusMsg(response?.data?.approver?.filter((apr) => apr?.userId === Id)[0]?.status)
-                setTimeExtension(response?.data?.extension)
-                setWorkDuration(response?.data?.workDuration)
-                setFormResData([...response?.data?.response, { sectionName: 'status', responses: response?.data?.approver }])
-                changeBreadCrumbsStatus(response?.data?.approver?.filter((apr) => apr?.userId === Id)[0]?.status)
-            } catch (error) {
-                // setStatusMsg(approver.filter((apr) => apr?.userId === Id)[0]?.status)
-                // setFormResData([...responseData,{sectionName:'imageCaptured'}, { sectionName: 'status', responses: approver }])
-                console.error("error in getting form response:", error)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        fetchFormResData()
-    }, [permitNumber])
-
-    return (
-        <div className={Styles.formResponse} >
-            {formResData.length > 0 && formState === 'approved' && <div style={{ height: '35px', width: '170px',position:'relative',right:'-200px' }} className='d-flex'>
-                <Button
-                    loading={loadingButton}
-                    loadingPosition="end"
-                    endIcon={<DownloadForOfflineRoundedIcon />}
-                    variant="outlined"
-                    size="small"
-                    // className="responsive-button"
-                    style={{
-                        borderRadius: 10,
-                    }}
-                    onClick={downloadResponse}
-                >
-                    Download
-                </Button>
-            </div>}
-            <div
-                id="responseDownload"
-                style={{
-                    padding: 20,
-                    // border: '2px dashed #444',
-                    background: '#fff',
-                    color: '#000',
-                    marginBottom: 20,
-                }}
-            >
-                {/*show status when vendor request is rejected and approved */}
-                {formResData.length > 0 && formState && <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }} className={formState === 'pending' ? Styles.pendingStatus : formState === 'approved' ? Styles.approvedStatus : Styles.rejectedStatus}>
-                    <h4 style={{ color: '#000000ba', fontWeight: '600' }}>Permit Status :</h4>
-                    <h4 style={{ textTransform: 'capitalize', marginLeft: '2px' }}>{formState}</h4>
-                </div>}
-                <div className={Styles.timeExt}>
-                    {!(formResData?.length === 0) && <div className='d-flex' style={{ flexWrap: 'wrap' }}>
-                        <div style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>Permit Valid Upto:</div>
-                        <div style={{ textAlign: 'left', marginLeft: '5px' }}>{formatDate(workDuration?.to, true)}</div>
-                    </div>}
-
-                    {formState === 'approved' && !(timeExtension?.status === 'pending') && process.env.NEXT_PUBLIC_TIME_EXTENSION === 'true' &&
-                        <div style={{ height: '35px', width: '170px' }} className='d-flex'>
-                            <Button
-                                className='text-nowrap'
-                                variant='contained'
-                                onClick={() => setIsModalOpen(prev => !prev)}
-                            >
-                                Extend Permit Time
-                            </Button>
-                        </div>}
-                </div>
-
-                {formResData.length > 0 && status && <div className='d-flex justify-content-between'>
-                    <div>
-                        {formState === 'approved' && timeExtension?.status === 'pending' &&
-                            <Whisper
-                                trigger="click"
-                                placement='bottomStart'
-                                controlId={`Extension-Requested`}
-                                speaker={
-                                    (<Popover title="Time Extension Request" visible>
-                                        <form className={Styles.extForm} onSubmit={handleSubmitTimeExt(onSubmitTimeExt)}>
-                                            <div>
-                                                <InputLabel style={{ width: '100%', position: 'relative', color: 'black', marginLeft: '6px' }} required >Extended To
-                                                </InputLabel>
-                                                <DatePicker
-                                                    id={'selectTime'}
-                                                    disabled
-                                                    ranges={[]}
-                                                    format="dd/MM/yyyy HH:mm"
-                                                    size='sm'
-                                                    style={{ width: '100%' }}
-                                                    showOneCalendar
-                                                    value={new Date(timeExtension?.requested_duration?.to)}
-                                                    editable={false}
-                                                />
-                                            </div>
-                                            <div >
-                                                <InputLabel style={{ width: '100%', position: 'relative', color: 'black', marginLeft: '6px' }} >Reason
-                                                </InputLabel>
-                                                <TextField
-                                                    disabled
-                                                    type='text'
-                                                    value={timeExtension?.reason}
-                                                    placeholder='Reason'
-                                                    size='small'
-                                                    fullWidth
-                                                />
-                                            </div>
-                                            <div className={Styles.buttonCont} >
-                                                <Button
-                                                    style={{ height: '34px' }}
-                                                    variant='outlined'
-                                                    onClick={() => updateExtStatus('reject')}
-                                                >
-                                                    Reject
-                                                </Button>
-                                                <Button
-                                                    type='submit'
-                                                    variant='contained'
-                                                    style={{ background: 'green' }}
-                                                    onClick={() => updateExtStatus('approved')}//   onClick={() => setSendViaEmail(true)}
-                                                >
-                                                    Approve
-                                                </Button>
-                                            </div>
-                                        </form>
-                                    </Popover>)
-                                }
-                            >
-                                <Button
-                                    className={`${Styles.extReqBtn} `}
-                                    onClick={() => setIsBlinking(false)}
-                                ><p className={`${isBlinking ? Styles.blinkingButton : ''}`} style={{ margin: '0' }}>
-                                        Extension Requested
-                                    </p>
-                                </Button>
-                            </Whisper>}
-                    </div>
-                </div>}
-                <hr></hr>
-                {/*show responses of vendor for approval */}
-                <div >
-                    {loading ? <ResponseSkeleton /> : formResData?.length === 0 ? (<div style={{ height: '60vh' }}><NotFound /></div>) : <div
-                    >{formResData.map((res, index) => (
-                        <Response key={index} sectionName={res.sectionName} isAccordianExt={isAccordianExt} response={res.responses} permitNumber={permitNumber} />))}
-                    </div>}
-                </div>
-
-                {/* Modal for time extension */}
-                <Modal isOpen={isModalOpen} onClose={handleModalClose} heading={'Time Extension'}
-                    boxStyle={{
-                        position: 'absolute',
-                        top: '40%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: "50%",
-                        minWidth: '300px',
-                        bgcolor: 'background.paper',
-                        borderRadius: '15px',
-                        boxShadow: 24,
-                        p: 4,
-                        paddingTop: '13px',
-                    }}
-                >
-                    <Box sx={{ width: "100%" }} >
-                        <form className={Styles.form} onSubmit={handleSubmitTimeExt(onSubmitTimeExt)}>
-                            <div>
-                                <InputLabel style={{ width: '100%', position: 'relative', color: 'black', marginLeft: '6px' }} required >From
-                                </InputLabel>
-                                <DatePicker
-                                    id={'selectTime'}
-                                    disabled
-                                    ranges={[]}
-                                    format="dd/MM/yyyy HH:mm"
-                                    size='md'
-                                    style={{ width: '100%' }}
-                                    showOneCalendar
-                                    value={new Date(workDuration?.to)}
-                                    editable={false}
-                                />
-                            </div>
-                            <div>
-                                <InputLabel style={{ width: '100%', position: 'relative', color: 'black', marginLeft: '6px' }} required >To
-                                </InputLabel>
-                                <DatePicker
-                                    id={'selectDateTime'}
-                                    {...registerTimeExt('selectDateTime')}
-                                    onChange={(value) => {
-                                        setTimeExtValue('selectDateTime', value);
-                                        setDateRange(value);
-                                        triggerTimeExt('selectDateTime')
-                                    }}
-                                    onBlur={() => triggerTimeExt('selectDateTime')}
-                                    ranges={[]}
-                                    format="dd/MM/yyyy HH:mm"
-                                    size='md'
-                                    style={{ width: '100%' }}
-                                    showOneCalendar
-                                    value={dateRange}
-                                    editable={false}
-                                    shouldDisableDate={date => isBefore(date, subDays(new Date(workDuration?.to), 1))}
-                                />
-                                {errorsTimeExt?.selectDateTime && <FormHelperText error>{errorsTimeExt.selectDateTime.message}</FormHelperText>}
-                            </div>
-                            <div>
-                                <InputLabel style={{ width: '100%', position: 'relative', color: 'black', marginLeft: '6px' }} >Reason
-                                </InputLabel>
-                                <TextField
-                                    type='text'
-                                    {...registerTimeExt('reason')}
-                                    onChange={(e) => {
-                                        setTimeExtValue('reason', e.target.value);
-                                        triggerTimeExt('reason')
-                                    }}
-                                    onBlur={() => triggerTimeExt('reason')}
-                                    placeholder='Reason'
-                                    size='small'
-                                    fullWidth
-                                />
-                                {errorsTimeExt?.reason && <FormHelperText error>{errorsTimeExt.reason.message}</FormHelperText>}
-                            </div>
-                            <div className={Styles.buttonCont} >
-                                <Button
-                                    style={{ height: '34px' }}
-                                    variant='outlined'
-                                    onClick={handleModalClose}>
-                                    close
-                                </Button>
-                                <Button
-                                    type='submit'
-                                    variant='contained'
-                                //   onClick={() => setSendViaEmail(true)}
-                                >
-                                    submit
-                                </Button>
-                            </div>
-                        </form>
-                    </Box>
-                </Modal>
-
-                {/* show status when vendor request is rejected and approved */}
-                {/* {formResData.length > 0 && formState && <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }} className={formState === 'pending' ? Styles.pendingStatus : formState === 'approved' ? Styles.approvedStatus : Styles.rejectedStatus}>
-                <h4 style={{ color: '#000000ba', fontWeight: '600' }}>Permit Status :</h4>
-                <h4 style={{ textTransform: 'capitalize', marginLeft: '2px' }}>{formState}</h4>
-            </div>} */}
-
-                {/*QrCodeGenerator */}
-                {formResData.length > 0 && formState === 'approved' &&
-                    <div className='d-flex justify-content-center align-items-center'>
-                        <QRCodeGenerator permitNumber={permitNumber} />
-                    </div>}
-            </div>
-
-            {/*remark */}
-            <form onSubmit={handleSubmitRemark(onSubmit)}>
-                {formResData.length > 0 && status && statusMsg === 'pending' &&
-                    <>
-                        <h2 >Remark</h2>
-                        <div className="mb-3">
-                            <input
-                                type="text"
-                                placeholder="Remark"
-                                {...registerRemark("remark")}
-                                className={`form-control ${errorsRemark.remark ? "is-invalid" : ""}`}
-                            />
-                            <div className="invalid-feedback">
-                                {errorsRemark.remark?.message}
-                            </div>
-                        </div>
-                    </>
-                }
-
-                {/*button for approve , rejected and cancel */}
-                {formResData.length > 0 && status && <div className={Styles.buttonContainer} style={{ justifyContent: !(statusMsg === 'pending') && 'center' }}>
-                    <button type='button' className={Styles.cancelBtn} onClick={handleCancelBtn} >Cancel</button>
-                    {statusMsg === 'pending' && <div className={Styles.btnRejApv}>
-                        <button id='reject' type='submit' className={Styles.rejectedBtn} >Reject</button>
-                        <button id='approve' type='button' className={Styles.approvedBtn} onClick={() => { updateStatus('approved') }}>Approve</button>
-                    </div>}
-                    {formState === 'approved' && statusMsg === 'approved' && <div className={Styles.btnRejApv}>
-                        {formState === 'approved' &&
-                            <Button type='button' variant='contained' endIcon={<CameraAltTwoToneIcon />} onClick={() => handleAddImage(permitNumber)}>Add Image </Button>}
-                        <button id='closed' type='button' className={Styles.rejectedBtn} onClick={() => { updateStatus('closed') }}>Close Permit</button>
-                    </div>}
-                </div>}
-            </form>
+  return (
+    <div className={Styles.requestPage}>
+      <div className={Styles.searchBoxContainer}>
+        <div className={Styles.requestName}>
+          <Image
+            priority
+            src={RequestDesign}
+            width={20}
+            alt="icon"
+            style={{ cursor: 'pointer' }}
+            onClick={() => status && router.push('/dashboard')}
+          />
+          {status && <KeyboardArrowRightOutlinedIcon fontSize='medium' sx={{ color: "#ADADAD99" }} />}
+          <div style={{ cursor: 'pointer' }} onClick={handleCancelBtn}>{breadCrumbsStatus}</div>
+          {permitNumber && <KeyboardArrowRightOutlinedIcon fontSize='medium' sx={{ color: "#ADADAD99" }} />}
+          <div>{permitNumber}</div>
         </div>
-    )
+        {!permitNumber && <div className={Styles.search}>
+          <TextField
+            style={{ width: "48%" }}
+            id="outlined-basic"
+            placeholder="Search"
+            variant="outlined"
+            size="small"
+            value={searchTerm}
+            onChange={handleSearch}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon size='small' sx={{ color: '#595A5B99' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          {/*filter button */}
+          <div style={{ width: '48%', position: 'relative' }}>
+            {<Modal handleFilter={handleFilter} handleRemoveFilter={handleRemoveFilter} />}
+          </div>
+        </div>}
+      </div>
+      <div className={Styles.request}>
+        {/*list of forms request for approval */}
+        {!permitNumber && (loading ? <RequestSkeleton /> : filteredData.length === 0 ? (<div style={{ height: '70vh' }}><NotFound /></div>) : filteredData.map((data, index) => {
+          if (((page - 1) * rowsPerPage) <= index && index < (page * rowsPerPage)) {
+            return (<Request key={index} data={data} handleOnClick={handleResponseClick} handleAddImage={handleAddImage} />)
+          }
+        }))}
+
+        {permitNumber && <Response permitNumber={permitNumber} Id={Id} changeFormStatus={changeFormStatus} handleCancelBtn={handleCancelBtn} changeBreadCrumbsStatus={changeBreadCrumbsStatus} status={status} handleAddImage={handleAddImage} />}
+      </div>
+      {/*pages and no. of rows for showing data */}
+      {!permitNumber && filteredData.length !== 0 && <div style={{ margin: '30px' }}>
+        <Paginator
+          total={filteredData.length}
+          dataLimit={rowsPerPage}
+          page={page}
+          limitOptions={[10, 20, 30]}
+          handleChangePage={handleChangePage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage} />
+      </div>}
+    </div>
+
+  )
 }
 
-export default Index
+export default Index;

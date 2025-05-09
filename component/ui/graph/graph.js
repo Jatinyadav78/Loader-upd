@@ -41,19 +41,40 @@ export default function Graph({ xdata, activeYData, closedYData }) {
                 width: 2,
                 colors: ['transparent']
             },
+
+            // xaxis: {
+            //     categories: xdata ? xdata.map(permit => permit.toLowerCase().replace(" work permit", "").toUpperCase()) : ['permit'],
+            //     labels: {
+            //         rotate: -40,
+            //         style: {
+            //             fontSize: '12px',
+            //         }
+            //     }
+            // },
+            // tooltip: {
+            //     x: {
+            //         formatter: function (val) {
+            //             return val.toUpperCase() + " WORK PERMIT";
+            //         }
+            //     }
+            // },
+
+
+
             xaxis: {
-                categories: xdata ? xdata.map(permit => permit.toLowerCase().replace(" work permit", "").toUpperCase()) : ['permit'],
+                categories: xdata
+                    ? xdata.map(permit => permit.toLowerCase().replace(" work permit", "").toUpperCase())
+                    : ['permit'],
                 labels: {
-                    rotate: -40,
+                    rotate: -40, // Rotates the labels to prevent overlap
                     style: {
                         fontSize: '12px',
-                    }
-                }
-            },
-            tooltip: {
-                x: {
+                        fontFamily: 'Arial, sans-serif',
+                        whiteSpace: 'normal', // Allows text wrapping
+                    },
+                    maxHeight: 60, // Limits the height of the labels to prevent overflow
                     formatter: function (val) {
-                        return val.toUpperCase() + " WORK PERMIT";
+                        return val.length > 15 ? val.substring(0, 12) + '...' : val; // Truncates long names
                     }
                 }
             },
@@ -76,3 +97,5 @@ export default function Graph({ xdata, activeYData, closedYData }) {
         </div>
     );
 }
+
+

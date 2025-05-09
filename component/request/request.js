@@ -68,6 +68,5 @@ const Request = ({ data, handleOnClick, handleAddImage }) => {
     </div>
   )
 }
-
 export default Request
 

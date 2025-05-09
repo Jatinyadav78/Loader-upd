@@ -17,7 +17,7 @@ const Card = ({ title, number, handleClick }) => {
         setIsLoading(true);
         await handleClick(title);
     }
-
+ 
     return (
         <div className={`${Styles.cardContainer}`} style={{ background: backgroundColor }} onClick={handleCardClick}>
             <div className={Styles.imageTitleContainer}>

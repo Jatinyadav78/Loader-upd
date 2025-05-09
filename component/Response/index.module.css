@@ -1,17 +1,10 @@
 .requestPage {
-    width: 100%;
+    min-width: 390px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     background: linear-gradient(0deg, rgba(173, 173, 173, 0.08), rgba(173, 173, 173, 0.08)), #FFFFFF;
-}
-
-.formResponse{
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
 }
 
 .searchBoxContainer {
@@ -28,36 +21,6 @@
     text-transform: capitalize;
 }
 
-.timeExt {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
-    text-align: right;
-    font-size: 17px;
-    font-weight: 600;
-    color: #ff1313e6;
-    gap: 20px;
-}
-
-.extReqBtn{
-    background-color: white;
-}
-.extReqBtn:hover{
-    background-color: rgb(139, 164, 174);
-}
-
-.extForm input{
-    height: 10px;
-}
-
-.extForm label{
-    margin-top: 6px;
-}
-
-.extForm{
-    margin-bottom: 4px;
-}
-
 .requestName {
     display: flex;
     gap: 10px;
@@ -65,41 +28,35 @@
 }
 
 .search {
-    width: 20%;
+    width: 250px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .search input {
     height: 10px;
 }
 
-/* .request {
+.request {
     position: relative;
     min-height: 80vh;
     width: 95%;
     border-radius: 15px;
     background: #FFFFFF;
     padding: 20px;
-    box-shadow: 0px 4.115942001342773px 10.289855003356934px 0px #0000000D;
+    box-shadow: 0px 2px 4px 0px transparent;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-} */
- .pendingStatus{
-    color:rgb(128, 128, 128);
- }
-
-.approvedStatus {
-    color: #16B961;
+    margin-bottom: 15px;
+    /* justify-content: space-between; */
+    /* flex-wrap: wrap; */
 }
 
-.rejectedStatus {
-    color: #FF0E56
-}
 
 .buttonContainer {
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 .buttonContainer button {
@@ -108,24 +65,18 @@
     justify-content: center;
     align-items: center;
     padding: 8px 14px 8px 10px;
-    /* gap: 10px; */
+    gap: 10px;
     margin: 10px;
     position: relative;
     width: 25%;
     height: 45px;
     border-radius: 5px;
-    line-height: 15px;
 }
 
 .cancelBtn {
     background-color: white;
     color: #0073FF;
     border: 1px solid #0073FF;
-    transition: 'background-color 0.3s ease'
-}
-
-.cancelBtn:hover {
-    background-color: #f7f7fa;
 }
 
 .btnRejApv {
@@ -138,40 +89,12 @@
 .rejectedBtn {
     background-color: #FF0E56;
     color: white;
-    transition: 'background-color 0.3s ease'
-}
-
-.rejectedBtn:hover {
-    background-color: #db0c4a;
 }
 
 .approvedBtn {
     background-color: #16B961;
     color: white;
-    transition: 'background-color 0.3s ease'
 }
-
-.approvedBtn:hover {
-    background-color: #1b8e50;
-}
-
-.buttonCont {
-    margin-top: 15px;
-    display: flex;
-    justify-content: space-between;
-    position: relative;
-    top: 8px;
-    gap: 10px;
-    min-width: 260px;
-}
-
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px
-}
-
-/* .form . */
 
 @media(max-width:650px) {
     .buttonContainer {
@@ -180,7 +103,7 @@
     }
 
     .cancelBtn {
-        min-width: 290px;
+        min-width: 230px;
     }
 
     .btnRejApv {
@@ -193,18 +116,8 @@
 
 }
 
-@keyframes blink {
-    0% {
-      opacity: 1;
+@media (max-width: 780px) {
+    .request{
+        min-height: 85vh;
     }
-    50% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-  
-  .blinkingButton {
-    animation: blink 1s infinite;
-  }
+}
