@@ -51,7 +51,6 @@ const QRCodeScanner = () => {
   const capture = useCallback(() => {
     if (webcamRef.current && webcamRef.current.video.readyState === 4) {
       const video = webcamRef.current.video;
-
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       canvas.width = video.videoWidth;
@@ -61,6 +60,7 @@ const QRCodeScanner = () => {
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const code = jsQR(imageData.data, imageData.width, imageData.height);
+      
       if (code) {
         setScanResult(code.data);
       }
@@ -76,19 +76,11 @@ const QRCodeScanner = () => {
   }, [capture]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     if (scanResult) {
-      try {
-        const parsedData = JSON.parse(scanResult);
-        if (parsedData.url?.startsWith("http://") || parsedData.url?.startsWith("https://")) {
-          window?.open(parsedData.url, "_blank", "noopener,noreferrer");
-        }
-      } catch (error) {
-        if (scanResult?.url?.startsWith("http://") || scanResult?.url?.startsWith("https://")) {
-          window?.open(scanResult, "_blank", "noopener,noreferrer");
-        }
-      }
+      // Open the scanned URL directly in a new tab
+      window.open(scanResult, '_blank', 'noopener,noreferrer');
+      // Reset scan result after opening
+      setScanResult(null);
     }
   }, [scanResult]);
 
@@ -124,7 +116,6 @@ const QRCodeScanner = () => {
           onUserMediaError={handleCameraError}
         />
       )}
-      <p>Scanned Result: {scanResult}</p>
     </div>
   );
 };
