@@ -1,6 +1,6 @@
 import React from 'react';
 import Nav from './navbar/navbar.js'
-import Sidebar from '../components/sidebar/Sidebar.js';
+import Sidebar from '../Sidebar/sidebar/Sidebar.js';
 import Styles from './layout.module.css'
 
 const Layout = ({children, formName}) => {
