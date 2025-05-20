@@ -17,12 +17,15 @@ import NotFound from '../error/notFound.js';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { PieChart } from 'react-minimal-pie-chart';
 
 const SafetyDashboard = () => {
   const router = useRouter();
   const user = getLocalStorage('user');
   const isAdmin = user?.role === 'admin';
   
+  // TODO: Replace with actual API endpoint
+  // API endpoint: GET /api/safety/incidents
   const [requestData, setRequestData] = useState([
     {
       permitNumber: "SA123456",
@@ -50,29 +53,34 @@ const SafetyDashboard = () => {
     }
   ]);
 
+  // TODO: Replace with actual API endpoint
+  // API endpoint: GET /api/safety/monthly-stats
   const [monthlyStats, setMonthlyStats] = useState({
     USC: { captured: 15, closed: 12, pending: 3 },
     USA: { captured: 8, closed: 6, pending: 2 },
-    NM: { captured: 5, closed: 4, pending: 1 },
     total: { captured: 28, closed: 22, pending: 6 }
   });
 
-  const [staffStats, setStaffStats] = useState({
-    USC: { workers: 150, staff: 25 },
-    USA: { workers: 100, staff: 20 }
-  });
+  // TODO: Replace with actual API endpoint
+  // API endpoint: GET /api/safety/area-incidents
+  const [areaIncidents, setAreaIncidents] = useState([
+    { title: 'Area 1', value: 35, color: '#0073FF' },
+    { title: 'Area 2', value: 25, color: '#16B961' },
+    { title: 'Area 3', value: 20, color: '#FF6F06' },
+    { title: 'Area 4', value: 20, color: '#FF0E56' }
+  ]);
 
-  const [graphXdata, setGraphXdata] = useState(['Jan', 'Feb', 'Mar', 'Apr', 'May']);
-  const [graphActive, setGraphActive] = useState([65, 75, 80, 70, 85]);
-  const [graphClosed, setGraphClosed] = useState([60, 70, 75, 65, 80]);
+  const [graphXdata, setGraphXdata] = useState(['Captured', 'Closed', 'Pending', ]);
+  const [graphActive, setGraphActive] = useState([65, 75, 80, ]);
+  const [graphClosed, setGraphClosed] = useState([60, 70, 75, ]);
   const [loading, setLoading] = useState(false);
   const [tabValue, setTabValue] = useState('1');
+  
+  
   const [cardObj, setCardObj] = useState([
-    { status: 'request', count: 150 },
-    { status: 'pending', count: 45 },
-    { status: 'approved', count: 85 },
-    { status: 'rejected', count: 10 },
-    { status: 'closed', count: 10 },
+    { status: 'open', count: 150, icon: 'openIcon' },
+    { status: 'captured', count: 85, icon: 'capturedIcon' },
+    { status: 'pending', count: 45, icon: 'pendingIcon' }
   ]);
 
   const handleAddImage = (permitNumber) => {
@@ -91,6 +99,25 @@ const SafetyDashboard = () => {
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
+
+  // TODO: Implement API data fetching
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      // const response = await axios.get('/api/safety/dashboard');
+      // setMonthlyStats(response.data.monthlyStats);
+      // setAreaIncidents(response.data.areaIncidents);
+      // setGraphData(response.data.graphData);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className={Styles.dashboardContainer}>
@@ -136,9 +163,21 @@ const SafetyDashboard = () => {
               </div>
               <div className='row gap-5 mt-4 justify-content-center'>
                 <div className={`${Styles.graph} ${Styles.border} col-lg-6`}>
-                  <div className={Styles.graphTitle}>Safety Audit Reports</div>
+                  <div className={Styles.graphTitle}>Monthly Incident Reports</div>
                   <div>
                     <Graph activeYData={graphActive} closedYData={graphClosed} xdata={graphXdata} />
+                  </div>
+                </div>
+                <div className={`${Styles.graph} ${Styles.border} col-lg-4`}>
+                  <div className={Styles.graphTitle}>Incidents by Area</div>
+                  <div style={{ padding: '20px' }}>
+                    <PieChart
+                      data={areaIncidents}
+                      lineWidth={20}
+                      paddingAngle={2}
+                      label={({ dataEntry }) => `${dataEntry.title} (${Math.round(dataEntry.percentage)}%)`}
+                      labelStyle={{ fontSize: '5px' }}
+                    />
                   </div>
                 </div>
               </div>
@@ -149,40 +188,19 @@ const SafetyDashboard = () => {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Incident Type</TableCell>
+                      <TableCell>Location</TableCell>
                       <TableCell align="center">Captured</TableCell>
                       <TableCell align="center">Closed</TableCell>
                       <TableCell align="center">Pending</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {Object.entries(monthlyStats).map(([type, stats]) => (
-                      <TableRow key={type}>
-                        <TableCell>{type}</TableCell>
+                    {Object.entries(monthlyStats).map(([location, stats]) => (
+                      <TableRow key={location}>
+                        <TableCell>{location}</TableCell>
                         <TableCell align="center">{stats.captured}</TableCell>
                         <TableCell align="center">{stats.closed}</TableCell>
                         <TableCell align="center">{stats.pending}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Category</TableCell>
-                      <TableCell align="center">Workers</TableCell>
-                      <TableCell align="center">Staff</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {Object.entries(staffStats).map(([type, stats]) => (
-                      <TableRow key={type}>
-                        <TableCell>{type}</TableCell>
-                        <TableCell align="center">{stats.workers}</TableCell>
-                        <TableCell align="center">{stats.staff}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
