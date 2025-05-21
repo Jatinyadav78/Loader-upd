@@ -131,6 +131,11 @@
     justify-content: flex-end;
   }
 
+  .addImageButton {
+    position: relative;
+    top: 20px;
+}
+
 @media(max-width: 786px) {
     .dashboardImage{
         position: relative;

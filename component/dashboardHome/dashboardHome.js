@@ -167,7 +167,7 @@ const DashboardHome = () => {
                   <QrCodeScannerIcon fontSize='large'/>
                 </IconButton>
               </div>
-              {isAdmin && (
+              {/* {isAdmin && (
                 <div style={{ marginRight: '10px' }}>
                   <Button
                     variant='contained'
@@ -178,7 +178,7 @@ const DashboardHome = () => {
                     Departments
                   </Button>
                 </div>
-              )}
+              )} */}
               <div>
                 <Button
                   variant='contained'
@@ -318,4 +318,8 @@ const DashboardHome = () => {
   )
 }
 
+
+
 export default DashboardHome
+
+
