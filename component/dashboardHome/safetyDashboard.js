@@ -1,3 +1,4 @@
+
 'use client'
 import React, { useEffect, useState } from 'react';
 import Styles from './dashboardHome.module.css';
@@ -65,7 +66,7 @@ const SafetyDashboard = () => {
     { title: 'Area 4', value: 20, color: '#FF0E56' }
   ]);
 
-  const [graphXdata, setGraphXdata] = useState(['Captured', 'Closed', 'Pending']);
+  const [graphXdata, setGraphXdata] = useState(['Open', 'Closed', 'Pending']);
   const [graphActive, setGraphActive] = useState([65, 75, 80]);
   const [graphClosed, setGraphClosed] = useState([60, 70, 75]);
   const [loading, setLoading] = useState(false);
@@ -73,7 +74,7 @@ const SafetyDashboard = () => {
   
   const [cardObj, setCardObj] = useState([
     { status: 'open', count: 150, icon: 'openIcon' },
-    { status: 'captured', count: 85, icon: 'capturedIcon' },
+    { status: 'Closed', count: 85, icon: 'ClosedIcon' },
     { status: 'pending', count: 45, icon: 'pendingIcon' }
   ]);
 
@@ -94,9 +95,18 @@ const SafetyDashboard = () => {
     setTabValue(newValue);
   };
 
+  // Handle safety form button click 
   const handleSafetyForm = () => {
-    // Navigate to safety form
-    router.push('/home?id=safety-audit&orgId=1234');
+    
+    const formConfig = {
+      id: '682424d7412aa761f4cb8619',
+      orgId: '66007bc3c0171669e42e4546',
+      till: '2039-06-21T06:26:55.000Z'
+    };
+
+    const formUrl = `http://localhost:3000/home?id=${formConfig.id}&orgId=${formConfig.orgId}&till=${formConfig.till}`;
+    
+    window.open(formUrl, '_blank');
   };
        
   useEffect(() => {
@@ -183,7 +193,7 @@ const SafetyDashboard = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Location</TableCell>
-                      <TableCell align="center">Captured</TableCell>
+                      <TableCell align="center">Open</TableCell>
                       <TableCell align="center">Closed</TableCell>
                       <TableCell align="center">Pending</TableCell>
                     </TableRow>
@@ -192,7 +202,7 @@ const SafetyDashboard = () => {
                     {Object.entries(monthlyStats).map(([location, stats]) => (
                       <TableRow key={location}>
                         <TableCell>{location}</TableCell>
-                        <TableCell align="center">{stats.captured}</TableCell>
+                        <TableCell align="center">{stats.Open}</TableCell>
                         <TableCell align="center">{stats.closed}</TableCell>
                         <TableCell align="center">{stats.pending}</TableCell>
                       </TableRow>
@@ -230,7 +240,5 @@ const SafetyDashboard = () => {
 }
 
 export default SafetyDashboard;
-
-
 
 
