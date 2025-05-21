@@ -1,19 +1,16 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import Styles from './dashboardHome.module.css';
+import Styles from './firDashboard.module.css';
 import Image from 'next/image';
 import DashboardDesign from '../../public/dashboardDesign.svg';
-import Card from '../ui/card/card.js';
-import Graph from '../ui/graph/graph.js';
-import Request from '../request/request.js';
 import { useRouter } from 'next/navigation';
 import { Button } from '@mui/material';
-import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
-import IconButton from "@mui/material/IconButton";
-import { getLocalStorage } from '../../helperFunction/localStorage.js';
-import RequestSkeleton from '../request/requestSkeleton';
-import CardSkeleton from '../ui/card/cardSkeleton.js';
-import NotFound from '../error/notFound.js';
+import { getLocalStorage } from '../../helperFunction/localStorage';
+import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
+import Card from '../ui/firDashboard/Card';
+import Graph from '../ui/firDashboard/Graph';
 
 const FirDashboard = () => {
   const router = useRouter();
@@ -45,31 +42,28 @@ const FirDashboard = () => {
         formName: "Emergency Response Report",
       }
     }
-  ])
-  const [graphXdata, setGraphXdata] = useState(['Jan', 'Feb', 'Mar', 'Apr', 'May'])
-  const [graphActive, setGraphActive] = useState([10, 8, 12, 7, 9])
-  const [graphClosed, setGraphClosed] = useState([8, 7, 10, 6, 8])
-  const [loading, setLoading] = useState(false)
-  const [cardObj, setCardObj] = useState([
-    { status: 'request', count: 45 },
-    { status: 'pending', count: 12 },
-    { status: 'approved', count: 25 },
-    { status: 'rejected', count: 3 },
-    { status: 'closed', count: 5 },
-  ])
+  ]);
 
-  const handleAddImage = (permitNumber) => {
-    router.push(`/image/${permitNumber}`)
-  }
+  const [graphXdata, setGraphXdata] = useState(['Jan', 'Feb', 'Mar', 'Apr', 'May']);
+  const [graphActive, setGraphActive] = useState([10, 8, 12, 7, 9]);
+  const [graphClosed, setGraphClosed] = useState([8, 7, 10, 6, 8]);
+  const [loading, setLoading] = useState(false);
+  const [tabValue, setTabValue] = useState('1');
+  
+  const [cardObj, setCardObj] = useState([
+    { status: 'active', count: 15, icon: 'activeIcon' },
+    { status: 'resolved', count: 8, icon: 'resolvedIcon' },
+    { status: 'pending', count: 4, icon: 'pendingIcon' }
+  ]);
 
   const handleCard = async (title) => {
     await new Promise(resolve => setTimeout(resolve, 500));
     router.push(`/status/${title}`);
-  }
+  };
 
-  const handleOnClick = (permitNumber, status) => {
-    router.push(`/status/${status}/${permitNumber}`)
-  }
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   return (
     <div className={Styles.dashboardContainer}>
@@ -81,39 +75,30 @@ const FirDashboard = () => {
       />
       <div className={Styles.main}>
         <div className={Styles.header}>
-          <div className={Styles.title}></div>
-          <div className='d-flex'>
-            <div style={{ color: 'black', marginRight: '10px' }}>
-              <IconButton aria-label="qrScanner" style={{color:'black',position:'relative', bottom:'8px'}} onClick={()=> router.push('/scanner')}>
-                <QrCodeScannerIcon fontSize='large'/>
-              </IconButton>
-            </div>
-          </div>
+          <h1 className={Styles.title}>Fire Incident Reports</h1>
         </div>
-        <div className={`${Styles.card} row-gap-3 mt-2`}>
-          {loading ? cardObj.map((card, index) => (<CardSkeleton key={index} />)) : cardObj.map((card, index) => {
-            return <Card key={index} title={card.status} number={card.count} handleClick={handleCard} />
-          })}
+
+        <div className={Styles.cardContainer}>
+          {cardObj.map((card, index) => (
+            <Card 
+              key={index} 
+              title={card.status} 
+              number={card.count} 
+              handleClick={handleCard}
+            />
+          ))}
         </div>
-        <div className='row gap-5 mt-4 justify-content-center'>
-          <div className={`${Styles.graph} ${Styles.border} col-lg-6`}>
-            <div className={Styles.graphTitle}>Fire Incident Reports</div>
-            <div>
-              <Graph activeYData={graphActive} closedYData={graphClosed} xdata={graphXdata} />
-            </div>
-          </div>
-          <div className={`${Styles.recentRequest} ${Styles.border} col-lg-5`}>
-            <div className='w-100'>
-              <div className={Styles.recentReqTitle}>Recent Reports</div>
-              <div className={Styles.request}>
-                {loading ? <RequestSkeleton /> : requestData.length === 0 ? <NotFound /> : requestData.map((data, index) => (<Request key={index} data={data} handleOnClick={handleOnClick} handleAddImage={handleAddImage} />))}
-              </div>
-            </div>
-          </div>
+
+        <div className={Styles.graphContainer}>
+          <Graph 
+            xdata={graphXdata} 
+            activeYData={graphActive} 
+            closedYData={graphClosed} 
+          />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default FirDashboard
+export default FirDashboard;
