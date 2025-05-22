@@ -1,7 +1,7 @@
 .sidebar {
   width: 250px;
   height: 100vh;
-  background: #1a1a2e;
+  background: #1b5cb8;
   color: white;
   transition: all 0.3s ease;
   position: fixed;
@@ -60,4 +60,16 @@
   width: 0;
   height: 0;
   overflow: hidden;
+}
+
+/* .customIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+} */
+
+/* Add this to Sidebar.module.css */
+.active {
+  background-color: #e6f0ff;
+  font-weight: bold;
 }

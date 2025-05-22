@@ -301,7 +301,7 @@ const Index = ({ status, pn }) => {
   const handleChangePage = (event) => {
     setPage(event)
   };
-
+   
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(event)
     setPage(1)

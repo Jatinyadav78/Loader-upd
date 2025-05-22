@@ -734,7 +734,7 @@ const FormPlayground = ({ id, orgId, validTill }) => {
       const response = await axios.get(`v1/smart-form/form-templates/${id}`)
       const depResponse = await axios.get(`v1/departments/?organizationId=${orgId}`)
       setDepartments(depResponse?.data)
-      response.data.sections.unshift(registration)
+      response.data.sections
       changeFormName(response?.data?.name)
       dispatch(formAction.updateInitialState(response.data.sections))
       setResData([{ "sectionName": "Important Terms" }, ...response.data.sections, { "sectionName": "permit" }])

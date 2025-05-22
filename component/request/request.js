@@ -16,8 +16,9 @@ const Request = ({ data, handleOnClick, handleAddImage }) => {
   const handleRequestClick = async () => {
     setIsLoading(true);
     await handleOnClick(data?.permitNumber, data?.status);
+    // setIsLoading(false); 
   };
-
+    
   return (
     <div>
       <div className={Styles.requestContainer} onClick={handleRequestClick}>
@@ -34,9 +35,7 @@ const Request = ({ data, handleOnClick, handleAddImage }) => {
           <div className={Styles.otherDetails}>
             <p className={Styles.timestamp}>{date}</p>
             {data?.personName && <p>{`${data?.personName}(${data?.PersonDesignation})`}</p>}
-            
             {data?.remark && <p className={Styles.remark}>{data?.remark}</p>}
-            
           </div>
         </div>
         {data?.extension?.status === 'pending' && !(data?.status === 'closed') && 
@@ -53,20 +52,21 @@ const Request = ({ data, handleOnClick, handleAddImage }) => {
           )}
         </div>
       </div>
-      <div style={{ width: '100%' }}>
+      <div style={{ width: '100%',marginLeft: '15px' }}>
         {data?.state === 'approved' && 
           <Button
-            className={`${Styles.requestContainer} ${Styles.imageButton}`}
+            className={Styles.imageButton}
             variant='contained'
             endIcon={<CameraAltTwoToneIcon />}
             onClick={() => handleAddImage(data?.permitNumber)}
-          >
-            Add Image
+          >  
+            ADD IMAGE
           </Button>
         }
       </div>
     </div>
   )
 }
-export default Request
 
+export default Request;
+ 

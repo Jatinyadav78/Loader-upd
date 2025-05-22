@@ -58,6 +58,7 @@ const Form = ({
       setErrorMsg(err.message); // Set error message if validation fails
     }
   };
+  console.log("in form")
   return (
     <div id='form' className={`${Styles.section} ${Styles.active} `} >
       <form id='content' className={Styles.content} onSubmit={handleSubmit(submit)} >

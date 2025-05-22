@@ -121,3 +121,24 @@
 }
 
 
+
+.imageButton {
+    background-color: #0073FF !important;
+    color: #fff !important;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin: 12px 4px; 
+    border-radius: 8px;
+    padding: 6px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: none;
+    transition: background-color 0.3s ease;
+}
+
+.imageButton:hover {
+    background-color: #005ed6 !important;
+}
+
+

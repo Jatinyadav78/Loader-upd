@@ -11,7 +11,7 @@ import { SelectPicker, Stack } from 'rsuite';
 const SingleSelect = ({ useForm, trigger, field, sectionName, name }) => {
     const { label, placeholder, isRequired, errorMessage, conditionalOptions, options = [] } = field;
 
-    const { register, errors, setValue, errorMsg, reset, watch } = useForm //to get useForm objects and function of RHF.
+    const { register, errors, setValue, errorMsg, reset, watch, Controller, control } = useForm //to get useForm objects and function of RHF.
     const hookFormLabel = name ? `${name}${label}` : label;// If inputs in the matrix share the same label, different names are assigned in RHF(react-hook-form) to distinguish them.
 
     const showError = (errors[hookFormLabel] || errorMsg) ? true : false
@@ -61,20 +61,28 @@ const SingleSelect = ({ useForm, trigger, field, sectionName, name }) => {
             <FormControl sx={{ fontSize: 14, width: '100%', margin: '10px' }} size='small' >
                 <div style={{ border: "1px solid rgba(0, 0, 0, 0.3)", borderRadius: '3px', height: '38px', width: '100%', color: 'grey' }}>
 
-                    <SelectPicker
-                        id={hookFormLabel}
-                        {...register(`${hookFormLabel}`, {
-                            value: stateValue,
-                            required: isRequired && 'Please select an option',
-                        })}
+                    <Controller
+                        name={hookFormLabel}
+                        control={control}
                         defaultValue={stateValue}
-                        value={stateValue}
-                        onChange={handleChange}
-                        // label={hookFormLabel}
-                        data={data}
-                        searchable={false}
-                        style={{ width: "100%" }}
-                        placeholder={label}
+                        rules={{
+                            required: isRequired && "Please select an option",
+                        }}
+                        render={({ field }) => (
+                            <SelectPicker
+                                {...field}
+                                id={hookFormLabel}
+                                data={data}
+                                value={field.value}
+                                onChange={(value) => {
+                                    field.onChange(value);
+                                    handleChange?.(value); // if you want to trigger your custom logic
+                                }}
+                                searchable={false}
+                                style={{ width: "100%" }}
+                                placeholder={label}
+                            />
+                        )}
                     />
 
                 </div>
