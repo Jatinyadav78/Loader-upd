@@ -1,5 +1,6 @@
+
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Styles from './dashboardHome.module.css';
 import Image from 'next/image';
 import DashboardDesign from '../../public/dashboardDesign.svg';
@@ -52,7 +53,6 @@ const SafetyDashboard = () => {
   const [monthlyStats, setMonthlyStats] = useState({
     USC: { open: 15, closed: 12, pending: 3 },
     USA: { open: 8, closed: 6, pending: 2 },
-    total: { open: 28, closed: 22, pending: 6 }
   });
 
   const [areaIncidents, setAreaIncidents] = useState([
@@ -62,14 +62,14 @@ const SafetyDashboard = () => {
     { title: 'Area 4', value: 20, color: '#FF0E56' }
   ]);
 
-  const [graphXdata, setGraphXdata] = useState(['Open', 'Closed', 'Pending']);
-  const [graphActive, setGraphActive] = useState([65, 75, 80]);
-  const [graphClosed, setGraphClosed] = useState([60, 70, 75]);
+  const [graphXdata, setGraphXdata] = useState(['USC', 'USA']);
+  const [graphActive, setGraphActive] = useState([65, 45]);
+  const [graphClosed, setGraphClosed] = useState([55, 35]);
   const [loading, setLoading] = useState(false);
   const [tabValue, setTabValue] = useState('1');
   
   const [cardObj, setCardObj] = useState([
-    { status: 'request', count: 150 },
+    { status: 'request', count: 50 },
     { status: 'closed', count: 85 },
     { status: 'pending', count: 45 }
   ]);
@@ -92,24 +92,18 @@ const SafetyDashboard = () => {
   };
 
   const handleSafetyForm = () => {
-    router.push('/home?id=safety-audit&orgId=1234');
+    window.open(
+      'http://localhost:3000/home?id=682424d7412aa761f4cb8619&orgId=66007bc3c0171669e42e4546&till=2039-06-26T10:49:31.000Z',
+      '_blank'
+    );
   };
-       
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        // API calls would go here
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchDashboardData();
-  }, []);
-
+//   const handleSafetyForm = () => {
+//     window.open(
+//       'http://localhost:3000/home?id=682424d7412aa761f4cb8619&orgId=66007bc3c0171669e42e4546&till=2039-06-26T10:49:31.000Z',
+//       '_blank'
+//     );
+//   };
   return (
     <div className={Styles.dashboardContainer}>
       <Image
@@ -153,7 +147,7 @@ const SafetyDashboard = () => {
               </div>
               <div className='row gap-5 mt-4 justify-content-center'>
                 <div className={`${Styles.graph} ${Styles.border} col-lg-6`}>
-                  <div className={Styles.graphTitle}>Monthly Incident Reports</div>
+                  <div className={Styles.graphTitle}>Safety Audits by Location</div>
                   <div>
                     <Graph activeYData={graphActive} closedYData={graphClosed} xdata={graphXdata} />
                   </div>
@@ -189,28 +183,62 @@ const SafetyDashboard = () => {
             </TabPanel>
 
             <TabPanel value="2">
-              <TableContainer component={Paper} sx={{ mb: 4 }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Location</TableCell>
-                      <TableCell align="center">Open</TableCell>
-                      <TableCell align="center">Closed</TableCell>
-                      <TableCell align="center">Pending</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {Object.entries(monthlyStats).map(([location, stats]) => (
-                      <TableRow key={location}>
-                        <TableCell>{location}</TableCell>
-                        <TableCell align="center">{stats.open}</TableCell>
-                        <TableCell align="center">{stats.closed}</TableCell>
-                        <TableCell align="center">{stats.pending}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              <div className="row">
+                <div className="col-md-6 mb-4">
+                  <TableContainer component={Paper}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell colSpan={4} align="center" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>
+                            USC Statistics
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Status</TableCell>
+                          <TableCell align="center">Open</TableCell>
+                          <TableCell align="center">Closed</TableCell>
+                          <TableCell align="center">Pending</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>Count</TableCell>
+                          <TableCell align="center">{monthlyStats.USC.open}</TableCell>
+                          <TableCell align="center">{monthlyStats.USC.closed}</TableCell>
+                          <TableCell align="center">{monthlyStats.USC.pending}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </div>
+                <div className="col-md-6 mb-4">
+                  <TableContainer component={Paper}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell colSpan={4} align="center" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>
+                            USA Statistics
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Status</TableCell>
+                          <TableCell align="center">Open</TableCell>
+                          <TableCell align="center">Closed</TableCell>
+                          <TableCell align="center">Pending</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>Count</TableCell>
+                          <TableCell align="center">{monthlyStats.USA.open}</TableCell>
+                          <TableCell align="center">{monthlyStats.USA.closed}</TableCell>
+                          <TableCell align="center">{monthlyStats.USA.pending}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </div>
+              </div>
             </TabPanel>
 
             <TabPanel value="3">
