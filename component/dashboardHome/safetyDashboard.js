@@ -1,5 +1,4 @@
-
-'use client'
+"use client";
 import React, { useState } from 'react';
 import Styles from './dashboardHome.module.css';
 import Image from 'next/image';
@@ -49,17 +48,20 @@ const SafetyDashboard = () => {
       }
     }
   ]);
-
+   // Monthly Graph mock data
   const [monthlyStats, setMonthlyStats] = useState({
     USC: { open: 15, closed: 12, pending: 3 },
     USA: { open: 8, closed: 6, pending: 2 },
   });
+  //Pie chart mock data
 
   const [areaIncidents, setAreaIncidents] = useState([
-    { title: 'Area 1', value: 35, color: '#0073FF' },
-    { title: 'Area 2', value: 25, color: '#16B961' },
-    { title: 'Area 3', value: 20, color: '#FF6F06' },
-    { title: 'Area 4', value: 20, color: '#FF0E56' }
+    { title: 'Area 1', value: 25, color: '#E91E63' },
+    { title: 'Area 2', value: 15, color: '#FF9800' },
+    { title: 'Area 3', value: 20, color: '#9C27B0' },
+    { title: 'Area 4', value: 15, color: '#4CAF50' },
+    { title: 'Area 5', value: 15, color: '#FF5722' },
+    { title: 'Area 6', value: 10, color: '#009688' }
   ]);
 
   const [graphXdata, setGraphXdata] = useState(['USC', 'USA']);
@@ -98,12 +100,6 @@ const SafetyDashboard = () => {
     );
   };
 
-//   const handleSafetyForm = () => {
-//     window.open(
-//       'http://localhost:3000/home?id=682424d7412aa761f4cb8619&orgId=66007bc3c0171669e42e4546&till=2039-06-26T10:49:31.000Z',
-//       '_blank'
-//     );
-//   };
   return (
     <div className={Styles.dashboardContainer}>
       <Image
@@ -153,22 +149,23 @@ const SafetyDashboard = () => {
                   </div>
                 </div>
                 <div className={`${Styles.graph} ${Styles.border} col-lg-4`}>
-                  <div className={Styles.graphTitle}>Incidents by Area</div>
+                  <div className={Styles.graphTitle}>Incidents by Department</div>
                   <div style={{ 
                     padding: '20px',
                     height: '400px',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center'
                   }}>
                     <PieChart
                       data={areaIncidents}
-                      lineWidth={40}
+                      lineWidth={20}
                       paddingAngle={2}
-                      label={({ dataEntry }) => `${dataEntry.title}\n${Math.round(dataEntry.percentage)}%`}
+                      label={({ dataEntry }) => `${dataEntry.title}`}
                       labelStyle={{
                         fontSize: '4px',
-                        fill: '#fff',
+                        fill: '#333',
                         fontWeight: 'bold'
                       }}
                       labelPosition={75}
@@ -177,6 +174,20 @@ const SafetyDashboard = () => {
                       animationDuration={500}
                       animationEasing="ease-out"
                     />
+                    <div style={{ marginTop: '20px' }}>
+                      {areaIncidents.map((item, index) => (
+                        <div key={index} style={{ display: 'flex', alignItems: 'center', margin: '5px' }}>
+                          <div style={{ 
+                            width: '12px', 
+                            height: '12px', 
+                            backgroundColor: item.color,
+                            marginRight: '8px',
+                            borderRadius: '2px'
+                          }}></div>
+                          <span style={{ fontSize: '12px' }}>{item.title} ({item.value}%)</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
