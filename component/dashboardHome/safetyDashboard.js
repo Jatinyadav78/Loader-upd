@@ -54,7 +54,6 @@ const SafetyDashboard = () => {
     USA: { open: 8, closed: 6, pending: 2 },
   });
   //Pie chart mock data
-
   const [areaIncidents, setAreaIncidents] = useState([
     { title: 'Area 1', value: 25, color: '#E91E63' },
     { title: 'Area 2', value: 15, color: '#FF9800' },
@@ -93,11 +92,17 @@ const SafetyDashboard = () => {
     setTabValue(newValue);
   };
 
+  //  function to open safety audit form in new tab
   const handleSafetyForm = () => {
-    window.open(
-      'http://localhost:3000/home?id=682424d7412aa761f4cb8619&orgId=66007bc3c0171669e42e4546&till=2039-06-26T10:49:31.000Z',
-      '_blank'
-    );
+    // Get organization ID from user data
+    const orgId = user?.organizationId; 
+    const safetyFormId = '682424d7412aa761f4cb8619';
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + 6);
+    const url = `${window.location.origin}/home?id=${safetyFormId}&orgId=${orgId}&till=${expiryDate.toISOString()}`;
+    
+    
+    window.open(url, '_blank');
   };
 
   return (

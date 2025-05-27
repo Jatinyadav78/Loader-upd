@@ -1,5 +1,6 @@
+
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Styles from './dashboardHome.module.css';
 import Image from 'next/image';
 import DashboardDesign from '../../public/dashboardDesign.svg';
@@ -8,9 +9,7 @@ import Graph from '../ui/graph/graph.js';
 import Request from '../request/request.js';
 import { useRouter } from 'next/navigation';
 import { Button } from '@mui/material';
-import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
-import IconButton from "@mui/material/IconButton";
-import { getLocalStorage } from '../../helperFunction/localStorage.js';
+import { getLocalStorage } from '../../helperFunction/localStorage';
 import RequestSkeleton from '../request/requestSkeleton';
 import CardSkeleton from '../ui/card/cardSkeleton.js';
 import NotFound from '../error/notFound.js';
@@ -71,6 +70,25 @@ const FirDashboard = () => {
     router.push(`/status/${status}/${permitNumber}`)
   }
 
+  // Function to open FIR form in new tab
+  const handleFirForm = () => {
+    // Get organization ID from user data
+    const orgId = user?.organizationId;
+    
+    // FIR form ID - replace with actual form ID
+    const firFormId = '682424d7412aa761f4cb8620'; // Example ID
+    
+    // Calculate expiry date (e.g., 6 months from now)
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + 6);
+    
+    // Construct URL with parameters
+    const url = `${window.location.origin}/home?id=${firFormId}&orgId=${orgId}&till=${expiryDate.toISOString()}`;
+    
+    // Open in new tab
+    window.open(url, '_blank');
+  };
+
   return (
     <div className={Styles.dashboardContainer}>
       <Image
@@ -83,11 +101,13 @@ const FirDashboard = () => {
         <div className={Styles.header}>
           <div className={Styles.title}></div>
           <div className='d-flex'>
-            <div style={{ color: 'black', marginRight: '10px' }}>
-              <IconButton aria-label="qrScanner" style={{color:'black',position:'relative', bottom:'8px'}} onClick={()=> router.push('/scanner')}>
-                <QrCodeScannerIcon fontSize='large'/>
-              </IconButton>
-            </div>
+            <Button
+              variant='contained'
+              style={{ backgroundColor: '#0073FF' }}
+              onClick={handleFirForm}
+            >
+              FIR Form
+            </Button>
           </div>
         </div>
         <div className={`${Styles.card} row-gap-3 mt-2`}>
