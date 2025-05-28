@@ -1,10 +1,10 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Styles from './dashboardHome.module.css';
 import Image from 'next/image';
 import DashboardDesign from '../../public/dashboardDesign.svg';
 import Card from '../ui/card/card.js';
-import Graph from '../ui/graph/graph.js';
+import SafetyGraph from '../ui/graph/safetyGraph.js';
 import Request from '../request/request.js';
 import { useRouter } from 'next/navigation';
 import { Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
@@ -21,7 +21,35 @@ import { getLocalStorage } from '../../helperFunction/localStorage.js';
 const SafetyDashboard = () => {
   const router = useRouter();
   const user = getLocalStorage('user');
-  
+
+  // Add state for safety condition data
+  const [safetyCondition, setSafetyCondition] = useState(null);
+
+  // Fetch safety condition data on mount
+  useEffect(() => {
+    const fetchSafetyCondition = async () => {
+      try {
+        const token = getLocalStorage('token')?.access?.token;
+        const orgId = user?.organizationId;
+        const res = await fetch(
+          `http://192.1.81.40:3002/wpt/v1/safety/safety-condition?orgId=${orgId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        const data = await res.json();
+        setSafetyCondition(data);
+      } catch (error) {
+        console.error('Error fetching safety condition:', error);
+      }
+    };
+
+    fetchSafetyCondition();
+  }, []);
+
   const [requestData, setRequestData] = useState([
     {
       permitNumber: "SA123456",
@@ -54,19 +82,12 @@ const SafetyDashboard = () => {
     USA: { open: 8, closed: 6, pending: 2 },
   });
   //Pie chart mock data
-  const [areaIncidents, setAreaIncidents] = useState([
-    { title: 'Area 1', value: 25, color: '#E91E63' },
-    { title: 'Area 2', value: 15, color: '#FF9800' },
-    { title: 'Area 3', value: 20, color: '#9C27B0' },
-    { title: 'Area 4', value: 15, color: '#4CAF50' },
-    { title: 'Area 5', value: 15, color: '#FF5722' },
-    { title: 'Area 6', value: 10, color: '#009688' }
-  ]);
+  const [areaIncidents, setAreaIncidents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [graphXdata, setGraphXdata] = useState(['USC', 'USA']);
-  const [graphActive, setGraphActive] = useState([65, 45]);
-  const [graphClosed, setGraphClosed] = useState([55, 35]);
-  const [loading, setLoading] = useState(false);
+  const [graphWorkers, setGraphWorkers] = useState([0, 0]);
+  const [graphStaff, setGraphStaff] = useState([0, 0]);
   const [tabValue, setTabValue] = useState('1');
   
   const [cardObj, setCardObj] = useState([
@@ -74,6 +95,61 @@ const SafetyDashboard = () => {
     { status: 'closed', count: 85 },
     { status: 'pending', count: 45 }
   ]);
+
+  // Add useEffect to process API data for areas
+  useEffect(() => {
+    const fetchSafetyData = async () => {
+      try {
+        const token = getLocalStorage('token')?.access?.token;
+        const orgId = user?.organizationId;
+        const res = await fetch(
+          `http://192.1.81.40:3002/wpt/v1/safety/safety-condition?orgId=${orgId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        const data = await res.json();
+        
+        // Process area data for pie chart
+        const areaCount = data.reduce((acc, item) => {
+          if (item.area) {
+            acc[item.area] = (acc[item.area] || 0) + 1;
+          }
+          return acc;
+        }, {});
+
+        // Calculate percentages and create pie chart data
+        const total = Object.values(areaCount).reduce((sum, count) => sum + count, 0);
+        const colors = ['#E91E63', '#FF9800', '#9C27B0', '#4CAF50', '#FF5722', '#009688'];
+        
+        const pieData = Object.entries(areaCount).map(([area, count], index) => ({
+          title: area,
+          value: Math.round((count / total) * 100),
+          color: colors[index % colors.length]
+        }));
+
+        setAreaIncidents(pieData);
+        
+        // Process worker/staff data
+        const uscWorkers = data.filter(item => item.formType === 'USC' && item.worker).length;
+        const uscStaff = data.filter(item => item.formType === 'USC' && item.staff).length;
+        const usaWorkers = data.filter(item => item.formType === 'USA' && item.worker).length;
+        const usaStaff = data.filter(item => item.formType === 'USA' && item.staff).length;
+        
+        setGraphWorkers([uscWorkers, usaWorkers]);
+        setGraphStaff([uscStaff, usaStaff]);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching safety data:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchSafetyData();
+  }, []);
 
   const handleAddImage = (permitNumber) => {
     router.push(`/image/${permitNumber}`);
@@ -91,7 +167,7 @@ const SafetyDashboard = () => {
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
-
+   
   //  function to open safety audit form in new tab
   const handleSafetyForm = () => {
     // Get organization ID from user data
@@ -107,6 +183,13 @@ const SafetyDashboard = () => {
 
   return (
     <div className={Styles.dashboardContainer}>
+      {/* You can use safetyCondition here, for example: */}
+      {/* {safetyCondition && (
+        <div className={Styles.safetyConditionBox}>
+          <h4>Safety Condition</h4>
+          <pre>{JSON.stringify(safetyCondition, null, 2)}</pre>
+        </div>
+      )} */}
       <Image
         className={Styles.dashboardImage}
         priority
@@ -148,13 +231,18 @@ const SafetyDashboard = () => {
               </div>
               <div className='row gap-5 mt-4 justify-content-center'>
                 <div className={`${Styles.graph} ${Styles.border} col-lg-6`}>
-                  <div className={Styles.graphTitle}>Safety Audits by Location</div>
+                  <div className={Styles.graphTitle}>USC and USA Safety Audits</div>
                   <div>
-                    <Graph activeYData={graphActive} closedYData={graphClosed} xdata={graphXdata} />
+                    <SafetyGraph 
+                      workerData={graphWorkers} 
+                      staffData={graphStaff} 
+                      xdata={graphXdata}
+                      legendLabels={['Workers', 'Staff']} 
+                    />
                   </div>
                 </div>
                 <div className={`${Styles.graph} ${Styles.border} col-lg-4`}>
-                  <div className={Styles.graphTitle}>Incidents by Department</div>
+                  <div className={Styles.graphTitle}>Major Areas of Incidents</div>
                   <div style={{ 
                     padding: '20px',
                     height: '400px',
@@ -285,3 +373,10 @@ const SafetyDashboard = () => {
 }
 
 export default SafetyDashboard;
+
+
+
+
+
+
+
